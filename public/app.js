@@ -16,7 +16,7 @@ let peerConnection = null;
 let localStream = null;
 let remoteStream = null;
 let roomDialog = null;
-let roomId = null;
+const roomId = 'testRTC';
 
 function init() {
   document.querySelector('#cameraBtn').addEventListener('click', openUserMedia);
@@ -30,7 +30,7 @@ async function createRoom() {
   document.querySelector('#createBtn').disabled = true;
   document.querySelector('#joinBtn').disabled = true;
   const db = firebase.firestore();
-  const roomRef = await db.collection('rooms').doc();
+  const roomRef = await db.collection('rooms').doc(roomId);
 
   console.log('Create PeerConnection with configuration: ', configuration);
   peerConnection = new RTCPeerConnection(configuration);
@@ -41,7 +41,6 @@ async function createRoom() {
     peerConnection.addTrack(track, localStream);
   });
 
-  // Code for collecting ICE candidates below
   const callerCandidatesCollection = roomRef.collection('callerCandidates');
 
   peerConnection.addEventListener('icecandidate', event => {
@@ -65,9 +64,10 @@ async function createRoom() {
       sdp: offer.sdp,
     },
   };
+  
   await roomRef.set(roomWithOffer);
-  roomId = roomRef.id;
-  console.log(`New room created with SDP offer. Room ID: ${roomRef.id}`);
+  // roomId = roomRef.id;
+  console.log(`New room created with SDP offer. Room ID: ${roomId}`);
   document.querySelector(
       '#currentRoom').innerText = `Current room is ${roomRef.id} - You are the caller!`;
   // Code for creating a room above
@@ -110,7 +110,6 @@ function joinRoom() {
 
   document.querySelector('#confirmJoinBtn').
       addEventListener('click', async () => {
-        roomId = document.querySelector('#room-id').value;
         console.log('Join room: ', roomId);
         document.querySelector(
             '#currentRoom').innerText = `Current room is ${roomId} - You are the callee!`;
@@ -157,6 +156,7 @@ async function joinRoomById(roomId) {
     const offer = roomSnapshot.data().offer;
     console.log('Got offer:', offer);
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+    
     const answer = await peerConnection.createAnswer();
     console.log('Created answer:', answer);
     await peerConnection.setLocalDescription(answer);
