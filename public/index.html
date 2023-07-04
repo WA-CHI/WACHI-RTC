@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Welcome to FirebaseRTC</title>
+    <title>WACHI</title>
     <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
     <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
     <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -18,15 +18,16 @@
     <link rel="stylesheet" type="text/css" href="main.css">
 </head>
 <body>
-<h1>Welcome to FirebaseRTC!</h1>
+<h1>WACHI - RTC</h1>
 <div id="buttons">
+
     <button class="mdc-button mdc-button--raised" id="cameraBtn">
         <i class="material-icons mdc-button__icon" aria-hidden="true">perm_camera_mic</i>
-        <span class="mdc-button__label">Open camera & microphone</span>
+        <span class="mdc-button__label"> 카메라 및 마이크 권한 허용</span>
     </button>
     <button class="mdc-button mdc-button--raised" disabled id="createBtn">
         <i class="material-icons mdc-button__icon" aria-hidden="true">group_add</i>
-        <span class="mdc-button__label">Create room</span>
+        <span class="mdc-button__label"> 스트리밍 </span>
     </button>
     <button class="mdc-button mdc-button--raised" disabled id="joinBtn">
         <i class="material-icons mdc-button__icon" aria-hidden="true">group</i>
@@ -41,8 +42,11 @@
     <span id="currentRoom"></span>
 </div>
 <div id="videos">
+    <!-- 스트리밍 화면 -->
+    
     <video id="localVideo" muted autoplay playsinline></video>
-    <video id="remoteVideo" autoplay playsinline></video>
+    <!-- 모니터링 화면 -->
+    <!-- <video id="remoteVideo" autoplay playsinline></video> -->
 </div>
 <div class="mdc-dialog"
      id="room-dialog"
@@ -51,6 +55,7 @@
      aria-labelledby="my-dialog-title"
      aria-describedby="my-dialog-content">
     <div class="mdc-dialog__container">
+        
         <div class="mdc-dialog__surface">
             <h2 class="mdc-dialog__title" id="my-dialog-title">Join room</h2>
             <div class="mdc-dialog__content" id="my-dialog-content">
@@ -61,6 +66,7 @@
                     <div class="mdc-line-ripple"></div>
                 </div>
             </div>
+
             <footer class="mdc-dialog__actions">
                 <button type="button" class="mdc-button mdc-dialog__button" data-mdc-dialog-action="no">
                     <span class="mdc-button__label">Cancel</span>
@@ -70,6 +76,7 @@
                     <span class="mdc-button__label">Join</span>
                 </button>
             </footer>
+
         </div>
     </div>
     <div class="mdc-dialog__scrim"></div>
