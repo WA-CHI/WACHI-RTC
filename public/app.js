@@ -26,6 +26,7 @@ function init() {
   roomDialog = new mdc.dialog.MDCDialog(document.querySelector('#room-dialog'));
 }
 
+// caller - 방 생성
 async function createRoom() {
   document.querySelector('#createBtn').disabled = true;
   document.querySelector('#joinBtn').disabled = true;
@@ -53,6 +54,16 @@ async function createRoom() {
   });
   // Code for collecting ICE candidates above
 
+  //연결이 끊어졌는지 검사
+  peerConnection.addEventListener('connectionstatechange', () => {
+    const connectionState = peerConnection.connectionState;
+    if (connectionState === 'disconnected') {
+      peerConnection.close();
+      createRoom();
+
+    } 
+  });
+
   // Code for creating a room below
   const offer = await peerConnection.createOffer();
   await peerConnection.setLocalDescription(offer);
@@ -72,6 +83,8 @@ async function createRoom() {
       '#currentRoom').innerText = `Current room is ${roomRef.id} - You are the caller!`;
   // Code for creating a room above
 
+
+  //callee 데이터 얻을 시 스트림 추가
   peerConnection.addEventListener('track', event => {
     console.log('Got remote track:', event.streams[0]);
     event.streams[0].getTracks().forEach(track => {
@@ -98,12 +111,13 @@ async function createRoom() {
         let data = change.doc.data();
         console.log(`Got new remote ICE candidate: ${JSON.stringify(data)}`);
         await peerConnection.addIceCandidate(new RTCIceCandidate(data));
-      }
+      } 
     });
   });
   // Listen for remote ICE candidates above
 }
 
+//callee - 생성된 방에 입장
 function joinRoom() {
   document.querySelector('#createBtn').disabled = true;
   document.querySelector('#joinBtn').disabled = true;
@@ -201,14 +215,17 @@ async function openUserMedia(e) {
 
 async function hangUp(e) {
   const tracks = document.querySelector('#localVideo').srcObject.getTracks();
+  //로컬 영상 멈춤
   tracks.forEach(track => {
     track.stop();
   });
 
+  //원격 영상 멈춤
   if (remoteStream) {
     remoteStream.getTracks().forEach(track => track.stop());
   }
 
+  //연결 해제
   if (peerConnection) {
     peerConnection.close();
   }
@@ -222,13 +239,15 @@ async function hangUp(e) {
   document.querySelector('#currentRoom').innerText = '';
 
   // Delete room on hangup
+  // callee가 방을 나가더라도 방이 유지되도록
   if (roomId) {
     const db = firebase.firestore();
     const roomRef = db.collection('rooms').doc(roomId);
+    
     const calleeCandidates = await roomRef.collection('calleeCandidates').get();
     calleeCandidates.forEach(async candidate => {
       await candidate.ref.delete();
-    });
+    });    
     const callerCandidates = await roomRef.collection('callerCandidates').get();
     callerCandidates.forEach(async candidate => {
       await candidate.ref.delete();
